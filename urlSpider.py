@@ -6,7 +6,9 @@ from bs4 import BeautifulSoup
 from urlparse import urljoin
 class urlSpider:
 	# Class variables shared among all instances
-	project_name =''
+
+	#project_name =''
+	project_name=''
 	base_url= ''
 	domain_name = ''
 	queue_file =''
