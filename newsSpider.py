@@ -7,15 +7,16 @@ from urlparse import urljoin
 from dataconnetTest3 import *
 from newsItem import *
 class newsSpider:
+	project_name=''
 
 
-
-	def __init__(self):
-		#newsSpider.category=category
+	def __init__(self,project_name):
+		newsSpider.project_name=project_name
 		self.insertData()
 
 	def find_PageItem(self,page_url):
 		try:
+                        
 			r= requests.get(page_url)
 			soup = BeautifulSoup(r.content,'lxml')
 			complete_title = soup.find('h1',{'itemprop':'headline'}).next
@@ -28,7 +29,11 @@ class newsSpider:
 				time= timestamp['datetime'][11:19]
 				#print time
 			dateString=soup.find('time',{'itemprop':'datePublished'}).next.replace('\n','').replace(' ','')[9:]
-			source_name= soup.find('div',{'itemprop':'sourceOrganization'}).find('a').next
+			source_name=''
+			try:
+				source_name= soup.find('div',{'itemprop':'sourceOrganization'}).find('a').next
+			except:
+				pass
 			#print source_name
 			origin_url=page_url
 			#print origin_url
@@ -47,13 +52,18 @@ class newsSpider:
 			elif 'foxnews.com/health' in origin_url:
 				category='health'
 			elif 'foxnews.com/travel' in origin_url:
-				category = 'travel'
+				category ='travel'
 			elif 'foxnews.com/world' in origin_url:
 				category='world'
 			elif 'foxnews.com/sports' in origin_url:
 				category='sports'
+			elif 'foxnews.com/leisure' in origin_url:
+				category='lifestyle'	
+			elif 'foxnews.com/weather' in origin_url:
+				category='weather'			
 			else:
 				category='others'
+			print category
 
 			article_contents= soup.find('div',{'class':'article-text'}).find_all('p')
 			description1=''
@@ -66,36 +76,35 @@ class newsSpider:
 			return news
 		except:
 			#pass
+			print page_url 
 			print('skip this page')
 			return None
 	def crawl_urls(self,file_name):
 		newsItems = []
 		with open(file_name,'r') as f:
+			#couter =0
 			for line in f:
-				if 'print' or 'video' or 'latino' not in line:
+				#print couter
+				if 'print' or 'video' not in line:
+					
 					news= self.find_PageItem(line)
 
 					if news is not None:
-					#print news.title
-					#print news.complete_title
-					#print news.date
-					#print news.time
-					#print news.source_name
-					#print news.origin_url
-					#print news.description
-					#print news.category
 						newsItems.append(news)
 				else:
 					continue
+				#couter++
 		return newsItems
 	def insertData(self):
-		file_name='fox'+'/crawled.txt'
-		newsItems=self.crawl_urls(file_name)
-		print 'crawling finish'
-		insertRow(newsItems)
-		file_name='fox'+'/queue.txt'
-		newsItems=self.crawl_urls(file_name)
-		print 'crawling finish'
-		insertRow(newsItems)
-
-spider = newsSpider()
+		if os.path.exists(newsSpider.project_name):
+			file_name=newsSpider.project_name+'/crawled.txt'
+			newsItems=self.crawl_urls(file_name)
+			print 'crawling finish'
+			insertRow(newsItems)
+			'''
+			file_name=newsSpider.project_name+'/queue.txt'
+			newsItems=self.crawl_urls(file_name)
+			print 'crawling finish'
+			insertRow(newsItems)
+			'''
+#spider = newsSpider('fox')

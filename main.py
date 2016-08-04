@@ -14,15 +14,15 @@ CRAWLED_FILE = PROJECT_NAME +'/crawled.txt'
 NUMBER_OF_THREADS = 4
 '''
 CATEGOIES = ['politics','us','opinion','entertainment','tech','science','health','travel','world','sports']
-queue= Queue(maxsize=0)
+
 urlSpiders = []
 for category in CATEGOIES:
 	page = HOMEPAGE+'/'+category
 	urlSpider= urlSpider(PROJECT_NAME,page,DOMAIN_NAME)
 	urlSpiders.append(urlSpider)
 '''
-urlSpider(PROJECT_NAME,pHOMEPAGE,DOMAIN_NAME)
-
+urlSpider(PROJECT_NAME,HOMEPAGE,DOMAIN_NAME)
+queue= Queue(maxsize=0)
 #create workder threads(will die when main exits)
 def create_workers():
 	for _ in range(NUMBER_OF_THREADS):

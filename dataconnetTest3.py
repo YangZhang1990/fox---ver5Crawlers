@@ -13,6 +13,9 @@ def insertRow(newsItems):
 
 			try:
 				# Execute the  SQL command
+				#print news.title
+				#print news.date
+				#print news.category
 				cursor.execute(sql,(news.title,news.complete_title,news.date,news.time,news.source_name,news.origin_url,news.description,news.category))
 				# Commit your changes in the database
 				conn.commit()

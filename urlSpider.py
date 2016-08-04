@@ -4,6 +4,8 @@ from general import *
 import requests
 from bs4 import BeautifulSoup
 from urlparse import urljoin
+from newsSpider import newsSpider
+
 class urlSpider:
 	# Class variables shared among all instances
 
@@ -44,7 +46,8 @@ class urlSpider:
 					urlSpider.crawled.add(page_url)
 					urlSpider.update_files()
 				else:
-					quit()
+					print 'start crawl news items'
+					newsSpider('fox')
 
 
 	@staticmethod
@@ -73,9 +76,51 @@ class urlSpider:
 				continue
 			if urlSpider.domain_name not in url:
 				continue
+			#if 'careers.foxnews' or 'radio.foxnews' or 'shop.foxnews' or 'on-air' or 'weather.blogs' in url:
+				#print url
+				#continue
+			#if 'advertise' or 'help' or 'latino.foxnews' or 'live.foxnews' in url:
+				#print url
+				#continue
+			if 'shop.foxnews' in url:
+				#print url
+				continue
+			if 'live.foxnews' in url:
+				#print url
+				continue
+			if 'careers.foxnews' in url:
+				#print url
+				continue
+			if 'radio.foxnews' in url:
+				#print url
+				continue
+			if 'help' in url:
+				#print url
+				continue
+			if 'video.foxnews' in url:
+				#print url
+				continue
+			if 'video.latino' in url:
+				#print url
+				continue
+			if 'latino.foxnews' in url:
+				#print url
+				continue
+			if 'nation.foxnews' in url:
+				#print url
+				continue
+			if 'com/on-air' in url:
+				#print url
+				continue
+			if 'print' in url:
+				#print url
+				continue
 			urlSpider.queue.add(url)
 
 	@staticmethod
 	def update_files():
 		set_to_file(urlSpider.queue,urlSpider.queue_file)
 		set_to_file(urlSpider.crawled,urlSpider.crawled_file)
+
+
+
