@@ -1,4 +1,8 @@
 import os
+import sys  
+
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 #Each website you crawl is a separate project(folder)
 def create_project_dir(directory):
@@ -12,11 +16,13 @@ def create_data_files(project_name,base_url):
 	#crawled = project_name+'/crawled.txt'
 	queue = os.path.join(project_name , 'queue.txt')
 	crawled = os.path.join(project_name,"crawled.txt")
+	crawled_item = os.path.join(project_name,"crawledItems.txt")
 	if not os.path.isfile(queue):
 		write_file(queue,base_url)
 	if not os.path.isfile(crawled):
 		write_file(crawled,'')
-
+	if not os.path.isfile(crawled_item):
+		write_file(crawled_item,'')
 #Create a new files 
 def write_file(path, data):
 	#f = open(path,'w')
@@ -40,6 +46,7 @@ def file_to_set(file_name):
 def set_to_file(links,file_name):
 	with open(file_name,"w") as f:
 		for l in sorted(links):
-			l=l.encode('utf-8')
-			f.write(l+"\n")
-		
+			try:
+				f.write(l+''+"\n")
+			except:
+				pass
