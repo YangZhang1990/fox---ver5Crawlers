@@ -26,9 +26,9 @@ class urlSpider:
 		urlSpider.project_name= project_name
 		urlSpider.base_url= base_url
 		urlSpider.domain_name = domain_name
-		urlSpider.queue_file = urlSpider.project_name + '/queue.txt'
-		urlSpider.crawled_file = urlSpider.project_name + '/crawled.txt'
-		urlSpider.crawled_item_file = urlSpider.project_name + '/crawledItems.txt'
+		urlSpider.queue_file = urlSpider.project_name + '/'+urlSpider.project_name + '_queue.txt'
+		urlSpider.crawled_file = urlSpider.project_name+'/'+urlSpider.project_name + '_crawled.txt'
+		urlSpider.crawled_item_file = urlSpider.project_name+'/'+urlSpider.project_name + '_crawledItems.txt'
 		self.boot()
 		self.crawl_page_urls('First Spider',urlSpider.base_url)
 
@@ -47,82 +47,16 @@ class urlSpider:
 				#print(thread_name+ ' now crawling '+page_url)
 				print('Queue: '+ str(len(urlSpider.queue)) + '| Crawled :'+str(len(urlSpider.crawled_item)))
 				if len(urlSpider.crawled_item)<=5000:
-					urlSpider.add_links_to_queue(urlSpider.find_links(page_url))
+					urlSpider.add_links_to_queue_fox(urlSpider.find_links(page_url))
 					urlSpider.queue.remove(page_url)
 					urlSpider.crawled_url.add(page_url)
-					news = urlSpider.find_PageItem(page_url)
+					news = urlSpider.find_PageItem_Fox(page_url)
 					if news != None:
 						urlSpider.crawled_item.add(page_url)
 					urlSpider.update_files()
 				else:
 					print 'finished'
 					sys.exit(0)
-					#newsSpider('fox')
-
-	@staticmethod
-	def find_PageItem(page_url):
-		try:                       
-			r= requests.get(page_url)
-			soup = BeautifulSoup(r.content,'lxml')
-			complete_title = soup.find('h1',{'itemprop':'headline'}).next
-			title= complete_title.replace(' ','').replace("'","").replace('!','').replace(':','')[:49]
-			#print title
-			timestamp=soup.find('time')
-			if timestamp.has_attr('datetime'):
-				date= timestamp['datetime'][:10]
-				#print date
-				time= timestamp['datetime'][11:19]
-				#print time
-			dateString=soup.find('time',{'itemprop':'datePublished'}).next.replace('\n','').replace(' ','')[9:]
-			source_name='Foxnews'
-			try:
-				source_name= soup.find('div',{'itemprop':'sourceOrganization'}).find('a').next
-			except:
-				pass
-			#print source_name
-			origin_url=page_url
-			#print origin_url
-			if 'foxnews.com/politics' in origin_url:
-				category = 'politics'
-			elif 'foxnews.com/us' in origin_url:
-				category = 'us'
-			elif 'foxnews.com/opinion' in origin_url:
-				category='opinion'
-			elif 'foxnews.com/entertainment' in origin_url:
-				category = 'entertainment'
-			elif 'foxnews.com/tech' in origin_url:
-				category='tech'
-			elif 'foxnews.com/science' in origin_url:
-				category = 'science'
-			elif 'foxnews.com/health' in origin_url:
-				category='health'
-			elif 'foxnews.com/travel' in origin_url:
-				category ='travel'
-			elif 'foxnews.com/world' in origin_url:
-				category='world'
-			elif 'foxnews.com/sports' in origin_url:
-				category='sports'
-			elif 'foxnews.com/leisure' in origin_url:
-				category='lifestyle'	
-			elif 'foxnews.com/weather' in origin_url:
-				category='weather'			
-			else:
-				category='others'
-			#print category
-			article_contents= soup.find('div',{'class':'article-text'}).find_all('p')
-			description=''
-			for paragraph in article_contents:
-				description=description+paragraph.text.replace("'",'')+'\n'
-			#print description
-			#self, title,time,date,source_name,description,origin_url
-			news = newsItem(title,complete_title,time,date,source_name,description,origin_url,category)
-			insertRow(news)
-			return news
-		except:
-			#pass
-			#print page_url 
-			print('skip this page')
-			return None
 
 	@staticmethod
 	def find_links(base_url):
@@ -141,7 +75,13 @@ class urlSpider:
 		return links
 
 	@staticmethod
-	def add_links_to_queue(links):
+	def update_files():
+		set_to_file(urlSpider.queue,urlSpider.queue_file)
+		set_to_file(urlSpider.crawled_url,urlSpider.crawled_file)
+		set_to_file(urlSpider.crawled_item,urlSpider.crawled_item_file)
+
+	@staticmethod
+	def add_links_to_queue_fox(links):
 		for url in links:
 			if url in urlSpider.queue:
 				continue
@@ -189,12 +129,89 @@ class urlSpider:
 				#print url
 				continue
 			urlSpider.queue.add(url)
-
 	@staticmethod
-	def update_files():
-		set_to_file(urlSpider.queue,urlSpider.queue_file)
-		set_to_file(urlSpider.crawled_url,urlSpider.crawled_file)
-		set_to_file(urlSpider.crawled_item,urlSpider.crawled_item_file)
+	def find_PageItem_Fox(page_url):
+		try:                       
+			r= requests.get(page_url)
+			soup = BeautifulSoup(r.content,'lxml')
+			complete_title = soup.find('h1',{'itemprop':'headline'}).next
+			title= complete_title.replace(' ','').replace("'","").replace('!','').replace(':','')[:49]
+			#print title
+			timestamp=soup.find('time')
+			if timestamp.has_attr('datetime'):
+				date= timestamp['datetime'][:10]
+				#print date
+				time= timestamp['datetime'][11:19]
+				#print time
+			dateString=soup.find('time',{'itemprop':'datePublished'}).next.replace('\n','').replace(' ','')[9:]
+			#print dateString
+			source_name='Foxnews'
+			try:
+				source_name= soup.find('div',{'itemprop':'sourceOrganization'}).find('a').next
+			except:
+				pass
+			#print source_name
+			author=''
+			try:
+				author=soup.find('div',{'class':'article-info'}).find('span',{'itemprop':'name'}).next.replace('\n','').lstrip().rstrip()
+
+			except:
+				pass
+			#print author
+			origin_url=page_url
+			#print origin_url
+			pic_url=''
+			try:
+				image=soup.find('div',{'class':'m'}).find('img')
+				pic_url=image['src']
+				#pic_info=soup.find('div',{'class':'m'}).find('p').next.replace('\n','').lstrip()
+			except:
+				pass
+			#print pic_url
+			#print pic_info
+			#crawl category
+			if 'foxnews.com/politics' in origin_url:
+				category = 'politics'
+			elif 'foxnews.com/us' in origin_url:
+				category = 'us'
+			elif 'foxnews.com/opinion' in origin_url:
+				category='opinion'
+			elif 'foxnews.com/entertainment' in origin_url:
+				category = 'entertainment'
+			elif 'foxnews.com/tech' in origin_url:
+				category='tech'
+			elif 'foxnews.com/science' in origin_url:
+				category = 'science'
+			elif 'foxnews.com/health' in origin_url:
+				category='health'
+			elif 'foxnews.com/travel' in origin_url:
+				category ='travel'
+			elif 'foxnews.com/world' in origin_url:
+				category='world'
+			elif 'foxnews.com/sports' in origin_url:
+				category='sports'
+			elif 'foxnews.com/leisure' in origin_url:
+				category='lifestyle'	
+			elif 'foxnews.com/weather' in origin_url:
+				category='weather'			
+			else:
+				category='others'
+			#print category
+			article_contents= soup.find('div',{'class':'article-text'}).find_all('p')
+			description=''
+			for paragraph in article_contents:
+				description=description+paragraph.text.replace("'",'')+'\n'
+			#print description
+			#self, title,time,date,source_name,description,origin_url
+			news = newsItem(title,complete_title,time,date,source_name,description,origin_url,category,author,pic_url)
+			insertRow(news)
+			return news
+		except:
+			#pass
+			#print page_url 
+			print('skip this page')
+			return None
+
 
 
 

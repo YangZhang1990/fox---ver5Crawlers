@@ -9,14 +9,14 @@ def insertRow(newsItem):
 
 		# Prepare SQL query to INSERT a record into the database.
 
-		sql ="INSERT INTO dbo.newsTest(uniqueName,newsTitle,newsdate, newstime, source, origURL, description,category) VALUES (?,?,?,?,?,?,?,?)"
+		sql ="INSERT INTO dbo.newsTestBBC(uniqueName,newsTitle,newsdate, newstime, source, origURL, description,category,author,picURL) VALUES (?,?,?,?,?,?,?,?,?,?)"
 
 		try:
 			# Execute the  SQL command
 			#print news.title
 			#print news.date
 			#print news.category
-			cursor.execute(sql,(newsItem.title,newsItem.complete_title,newsItem.date,newsItem.time,newsItem.source_name,newsItem.origin_url,newsItem.description,newsItem.category))
+			cursor.execute(sql,(newsItem.title,newsItem.complete_title,newsItem.date,newsItem.time,newsItem.source_name,newsItem.origin_url,newsItem.description,newsItem.category,newsItem.author,newsItem.pic_url))
 			# Commit your changes in the database
 			conn.commit()
 			print 'success insert data'
